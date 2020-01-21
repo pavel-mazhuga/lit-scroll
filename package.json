@@ -1,0 +1,42 @@
+{
+    "name": "[PROJECT_NAME_HERE]",
+    "version": "0.0.1",
+    "description": "[PROJECT_DESCRIPTION_HERE]",
+    "main": "dist/index.js",
+    "repository": {
+        "type": "git",
+        "url": "[GIT_REPO_HERE]"
+    },
+    "keywords": [],
+    "author": "Pavel Mazhuga",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/pavel-mazhuga/[PROJECT_NAME_HERE]/issues"
+    },
+    "homepage": "https://github.com/pavel-mazhuga/[PROJECT_NAME_HERE]#readme",
+    "scripts": {
+        "prepare": "rimraf ./dist && rollup --config",
+        "test": "jest"
+    },
+    "devDependencies": {
+        "@types/jest": "latest",
+        "@typescript-eslint/eslint-plugin": "latest",
+        "@typescript-eslint/parser": "latest",
+        "eslint": "latest",
+        "eslint-config-prettier": "latest",
+        "eslint-plugin-prettier": "latest",
+        "jest": "latest",
+        "prettier": "latest",
+        "rimraf": "^3.0.0",
+        "rollup": "latest",
+        "rollup-plugin-eslint": "latest",
+        "rollup-plugin-node-resolve": "latest",
+        "rollup-plugin-terser": "latest",
+        "rollup-plugin-typescript2": "latest",
+        "ts-jest": "latest",
+        "typescript": "latest"
+    },
+    "dependencies": {
+        "eslint-plugin-jest": "latest"
+    }
+}

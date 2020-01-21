@@ -1,0 +1,38 @@
+{
+    "root": true,
+    "parser": "@typescript-eslint/parser",
+    "extends": ["plugin:@typescript-eslint/recommended", "prettier/@typescript-eslint", "plugin:prettier/recommended"],
+    "parserOptions": {
+        "ecmaVersion": 2018,
+        "sourceType": "module"
+    },
+    "env": {
+        "browser": true,
+        "jest/globals": true
+    },
+    "plugins": ["@typescript-eslint", "jest"],
+    "rules": {
+        "no-console": "off",
+        "no-param-reassign": [2, { "props": false }],
+        "unicode-bom": ["warn", "never"],
+        "max-len": ["warn", 120, 4],
+        "indent": ["warn", 4],
+        "max-lines": [
+            "warn",
+            {
+                "max": 300,
+                "skipBlankLines": true
+            }
+        ],
+        "import/order": "off",
+        "sort-requires/sort-requires": "off",
+        "linebreak-style": "off",
+        "arrow-parens": "off",
+        "no-underscore-dangle": "off",
+        "no-plusplus": "off",
+        "import/prefer-default-export": "off",
+        "@typescript-eslint/explicit-function-return-type": "off",
+        "@typescript-eslint/no-empty-function": "off",
+        "@typescript-eslint/no-non-null-assertion": "off"
+    }
+}
