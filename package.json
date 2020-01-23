@@ -1,19 +1,19 @@
 {
-    "name": "[PROJECT_NAME_HERE]",
+    "name": "lit-scroll",
     "version": "0.0.1",
-    "description": "[PROJECT_DESCRIPTION_HERE]",
+    "description": "JS smooth scrolling library",
     "main": "dist/index.js",
     "repository": {
         "type": "git",
-        "url": "[GIT_REPO_HERE]"
+        "url": "git@github.com:pavel-mazhuga/lit-scroll.git"
     },
     "keywords": [],
     "author": "Pavel Mazhuga",
     "license": "MIT",
     "bugs": {
-        "url": "https://github.com/pavel-mazhuga/[PROJECT_NAME_HERE]/issues"
+        "url": "https://github.com/pavel-mazhuga/lit-scroll/issues"
     },
-    "homepage": "https://github.com/pavel-mazhuga/[PROJECT_NAME_HERE]#readme",
+    "homepage": "https://github.com/pavel-mazhuga/lit-scroll#readme",
     "scripts": {
         "prepare": "rimraf ./dist && rollup --config",
         "test": "jest"
