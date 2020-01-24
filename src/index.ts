@@ -13,7 +13,7 @@ interface LitScrollListenerEvent {
     scrollValue: number;
 }
 
-type LitScrollListener = (LitScrollListenerEvent) => void;
+type LitScrollListener = (event: LitScrollListenerEvent) => void;
 
 type ListenerFunction = (eventName: EventName, fn: LitScrollListener) => void;
 
@@ -24,7 +24,7 @@ interface LitScrollInstance {
 }
 
 // linear interpolation
-function lerp(a, b, n) {
+function lerp(a: number, b: number, n: number) {
     return (1 - n) * a + n * b;
 }
 
@@ -49,9 +49,9 @@ export default function createLitScroll(_options: LitScrollOptions = defaultOpti
         throw new Error('[lit-scroll] Container element not found.');
     }
 
-    let rAF;
+    let rAF = 0;
     const listeners = new Set<[EventName, LitScrollListener]>();
-    const options: LitScrollInnerOptions = { ...defaultOptions, ..._options };
+    const options = { ...defaultOptions, ..._options } as LitScrollInnerOptions;
     const DOM = {
         main: wrapper,
         scrollable: container,
@@ -92,10 +92,12 @@ export default function createLitScroll(_options: LitScrollOptions = defaultOpti
 
     function update() {
         // sets the initial value (no interpolation) - translate the scroll value
-        Object.keys(renderedStyles).forEach(prop => {
-            renderedStyles[prop].current = renderedStyles[prop].setValue();
-            renderedStyles[prop].previous = renderedStyles[prop].setValue();
-        });
+        // Object.keys(renderedStyles).forEach(prop => {
+        //     renderedStyles[prop].current = renderedStyles[prop].setValue();
+        //     renderedStyles[prop].previous = renderedStyles[prop].setValue();
+        // });
+        renderedStyles.translationY.current = renderedStyles.translationY.setValue();
+        renderedStyles.translationY.previous = renderedStyles.translationY.setValue();
         translateScrollableElement();
     }
 
@@ -148,14 +150,20 @@ export default function createLitScroll(_options: LitScrollOptions = defaultOpti
 
     function render() {
         // update the current and interpolated values
-        Object.keys(renderedStyles).forEach(prop => {
-            renderedStyles[prop].current = renderedStyles[prop].setValue();
-            renderedStyles[prop].previous = lerp(
-                renderedStyles[prop].previous,
-                renderedStyles[prop].current,
-                renderedStyles[prop].ease,
-            );
-        });
+        // Object.keys(renderedStyles).forEach(prop => {
+        //     renderedStyles[prop].current = renderedStyles[prop].setValue();
+        //     renderedStyles[prop].previous = lerp(
+        //         renderedStyles[prop].previous,
+        //         renderedStyles[prop].current,
+        //         renderedStyles[prop].ease,
+        //     );
+        // });
+        renderedStyles.translationY.current = renderedStyles.translationY.setValue();
+        renderedStyles.translationY.previous = lerp(
+            renderedStyles.translationY.previous,
+            renderedStyles.translationY.current,
+            renderedStyles.translationY.ease,
+        );
 
         if (Math.abs(renderedStyles.translationY.previous - renderedStyles.translationY.current) > 0.9) {
             listeners.forEach(([eventName, fn]) => {

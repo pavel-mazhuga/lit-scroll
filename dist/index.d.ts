@@ -2,7 +2,11 @@ interface LitScrollOptions {
     ease?: number;
 }
 declare type EventName = 'scroll';
-declare type LitScrollListener = (LitScrollListenerEvent: any) => void;
+interface LitScrollListenerEvent {
+    docScrollValue: number;
+    scrollValue: number;
+}
+declare type LitScrollListener = (event: LitScrollListenerEvent) => void;
 declare type ListenerFunction = (eventName: EventName, fn: LitScrollListener) => void;
 interface LitScrollInstance {
     getCurrentValue: () => number;
