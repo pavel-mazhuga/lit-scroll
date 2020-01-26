@@ -17,10 +17,20 @@ type LitScrollListener = (event: LitScrollListenerEvent) => void;
 
 type ListenerFunction = (eventName: EventName, fn: LitScrollListener) => void;
 
+type ScrollTo = (target: number | string | Element, options?: { native: boolean }) => number | null;
+
 interface LitScrollInstance {
     getCurrentValue: () => number;
     on: ListenerFunction;
+    scrollTo: ScrollTo;
     destroy: () => void;
+}
+
+interface State {
+    docScroll: number;
+    scrollToValue: number | null;
+    windowWidth: number;
+    windowHeight: number;
 }
 
 // linear interpolation
@@ -38,8 +48,8 @@ const defaultOptions: LitScrollOptions = {
 };
 
 export default function createLitScroll(_options: LitScrollOptions = defaultOptions): LitScrollInstance {
-    const wrapper = document.body.querySelector('[data-scroll-wrapper]') as HTMLElement | null;
-    const container = document.body.querySelector('[data-scroll-container]') as HTMLElement | null;
+    const wrapper = document.body.querySelector('[data-lit-scroll-wrapper]') as HTMLElement | null;
+    const container = document.body.querySelector('[data-lit-scroll-container]') as HTMLElement | null;
 
     if (!wrapper) {
         throw new Error('[lit-scroll] Wrapper element not found.');
@@ -57,8 +67,9 @@ export default function createLitScroll(_options: LitScrollOptions = defaultOpti
         scrollable: container,
     };
 
-    const state = {
+    const state: State = {
         docScroll: 0,
+        scrollToValue: null,
         windowWidth: window.innerWidth,
         windowHeight: window.innerHeight,
     };
@@ -72,7 +83,7 @@ export default function createLitScroll(_options: LitScrollOptions = defaultOpti
             // amount to interpolate
             ease: options.ease,
             // current value setter
-            // in this case the value of the translation will be the same like the document scroll
+            // in this case the value of the translation will be the same as the document scroll
             setValue: () => state.docScroll,
         },
     };
@@ -92,10 +103,6 @@ export default function createLitScroll(_options: LitScrollOptions = defaultOpti
 
     function update() {
         // sets the initial value (no interpolation) - translate the scroll value
-        // Object.keys(renderedStyles).forEach(prop => {
-        //     renderedStyles[prop].current = renderedStyles[prop].setValue();
-        //     renderedStyles[prop].previous = renderedStyles[prop].setValue();
-        // });
         renderedStyles.translationY.current = renderedStyles.translationY.setValue();
         renderedStyles.translationY.previous = renderedStyles.translationY.setValue();
         translateScrollableElement();
@@ -150,20 +157,23 @@ export default function createLitScroll(_options: LitScrollOptions = defaultOpti
 
     function render() {
         // update the current and interpolated values
-        // Object.keys(renderedStyles).forEach(prop => {
-        //     renderedStyles[prop].current = renderedStyles[prop].setValue();
-        //     renderedStyles[prop].previous = lerp(
-        //         renderedStyles[prop].previous,
-        //         renderedStyles[prop].current,
-        //         renderedStyles[prop].ease,
-        //     );
-        // });
-        renderedStyles.translationY.current = renderedStyles.translationY.setValue();
-        renderedStyles.translationY.previous = lerp(
-            renderedStyles.translationY.previous,
-            renderedStyles.translationY.current,
-            renderedStyles.translationY.ease,
-        );
+        if (state.scrollToValue) {
+            renderedStyles.translationY.current = state.scrollToValue;
+            const interpolatedPrev = lerp(
+                renderedStyles.translationY.previous,
+                renderedStyles.translationY.current,
+                renderedStyles.translationY.ease,
+            );
+            renderedStyles.translationY.previous = interpolatedPrev;
+            window.scrollTo(0, interpolatedPrev);
+        } else {
+            renderedStyles.translationY.current = renderedStyles.translationY.setValue();
+            renderedStyles.translationY.previous = lerp(
+                renderedStyles.translationY.previous,
+                renderedStyles.translationY.current,
+                renderedStyles.translationY.ease,
+            );
+        }
 
         if (Math.abs(renderedStyles.translationY.previous - renderedStyles.translationY.current) > 0.9) {
             listeners.forEach(([eventName, fn]) => {
@@ -171,6 +181,8 @@ export default function createLitScroll(_options: LitScrollOptions = defaultOpti
                     fn({ docScrollValue: state.docScroll, scrollValue: renderedStyles.translationY.previous });
                 }
             });
+        } else {
+            state.scrollToValue = null;
         }
 
         translateScrollableElement();
@@ -180,6 +192,36 @@ export default function createLitScroll(_options: LitScrollOptions = defaultOpti
     function getCurrentValue() {
         return state.docScroll;
     }
+
+    const scrollTo: ScrollTo = (target, opts = { native: false }) => {
+        let offsetY: number | null = null;
+
+        if (typeof target === 'number') {
+            offsetY = target;
+        }
+
+        if (typeof target === 'string') {
+            const element = document.querySelector(target);
+
+            if (element) {
+                offsetY = window.scrollY + element.getBoundingClientRect().top;
+            }
+        }
+
+        if (target instanceof Element) {
+            offsetY = window.scrollY + target.getBoundingClientRect().top;
+        }
+
+        if (offsetY) {
+            if (opts.native && window.CSS?.supports?.('scroll-behavior', 'smooth')) {
+                window.scrollTo({ top: offsetY, behavior: 'smooth' });
+            } else {
+                state.scrollToValue = offsetY;
+            }
+        }
+
+        return offsetY;
+    };
 
     function init() {
         getWindowSize();
@@ -203,6 +245,7 @@ export default function createLitScroll(_options: LitScrollOptions = defaultOpti
     return {
         getCurrentValue,
         on,
+        scrollTo,
         destroy,
     };
 }

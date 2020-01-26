@@ -13,6 +13,11 @@ export default {
     output: [
         {
             file: pkg.main,
+            format: 'umd',
+            name: 'LitScroll',
+        },
+        {
+            file: pkg.module,
             format: 'esm',
         },
     ],
