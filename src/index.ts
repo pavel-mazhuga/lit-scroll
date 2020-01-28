@@ -11,6 +11,7 @@ type EventName = 'scroll';
 interface LitScrollListenerEvent {
     docScrollValue: number;
     scrollValue: number;
+    maxHeight: number;
 }
 
 type LitScrollListener = (event: LitScrollListenerEvent) => void;
@@ -178,7 +179,11 @@ export default function createLitScroll(_options: LitScrollOptions = defaultOpti
         if (Math.abs(renderedStyles.translationY.previous - renderedStyles.translationY.current) > 0.9) {
             listeners.forEach(([eventName, fn]) => {
                 if (eventName === 'scroll') {
-                    fn({ docScrollValue: state.docScroll, scrollValue: renderedStyles.translationY.previous });
+                    fn({
+                        docScrollValue: state.docScroll,
+                        scrollValue: renderedStyles.translationY.previous,
+                        maxHeight: DOM.scrollable.scrollHeight,
+                    });
                 }
             });
         } else {
