@@ -5,6 +5,7 @@ declare type EventName = 'scroll';
 interface LitScrollListenerEvent {
     docScrollValue: number;
     scrollValue: number;
+    maxHeight: number;
 }
 declare type LitScrollListener = (event: LitScrollListenerEvent) => void;
 declare type ListenerFunction = (eventName: EventName, fn: LitScrollListener) => void;

@@ -1,6 +1,6 @@
 {
     "name": "lit-scroll",
-    "version": "0.3.0",
+    "version": "0.4.0",
     "description": "JS smooth scrolling library",
     "main": "dist/index.js",
     "module": "dist/esm/index.js",
