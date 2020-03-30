@@ -1,18 +1,12 @@
-interface LitScrollOptions {
-    ease?: number;
-}
-
-type LitScrollInnerOptions = {
-    ease: number;
-};
+import { lerp } from './utils';
 
 type EventName = 'scroll';
 
-interface LitScrollListenerEvent {
+type LitScrollListenerEvent = {
     docScrollValue: number;
     scrollValue: number;
     maxHeight: number;
-}
+};
 
 type LitScrollListener = (event: LitScrollListenerEvent) => void;
 
@@ -20,53 +14,43 @@ type ListenerFunction = (eventName: EventName, fn: LitScrollListener) => void;
 
 type ScrollTo = (target: number | string | Element, options?: { native: boolean }) => number | null;
 
-interface LitScrollInstance {
+type LitScrollInstance = {
     getCurrentValue: () => number;
     on: ListenerFunction;
     scrollTo: ScrollTo;
     destroy: () => void;
-}
+};
 
-interface State {
+type State = {
     docScroll: number;
     scrollToValue: number | null;
     windowWidth: number;
     windowHeight: number;
-}
+};
 
-// linear interpolation
-function lerp(a: number, b: number, n: number) {
-    return (1 - n) * a + n * b;
-}
-
-// map number x from range [a, b] to [c, d]
-// function map(x, a, b, c, d) {
-//     return ((x - a) * (d - c)) / (b - a) + c;
-// }
+type LitScrollOptions = {
+    ease: number;
+};
 
 const defaultOptions: LitScrollOptions = {
     ease: 0.1,
 };
 
-export default function createLitScroll(_options: LitScrollOptions = defaultOptions): LitScrollInstance {
-    const wrapper = document.body.querySelector('[data-lit-scroll-wrapper]') as HTMLElement | null;
-    const container = document.body.querySelector('[data-lit-scroll-container]') as HTMLElement | null;
+export default function createLitScroll(_options: Partial<LitScrollOptions> = defaultOptions): LitScrollInstance {
+    const wrapper = document.body.querySelector('[data-lit-scroll-wrapper]') as HTMLElement;
+    const scrollableContainer = document.body.querySelector('[data-lit-scroll-container]') as HTMLElement;
 
     if (!wrapper) {
         throw new Error('[lit-scroll] Wrapper element not found.');
     }
 
-    if (!container) {
+    if (!scrollableContainer) {
         throw new Error('[lit-scroll] Container element not found.');
     }
 
     let rAF = 0;
     const listeners = new Set<[EventName, LitScrollListener]>();
-    const options = { ...defaultOptions, ..._options } as LitScrollInnerOptions;
-    const DOM = {
-        main: wrapper,
-        scrollable: container,
-    };
+    const options = { ...defaultOptions, ..._options } as LitScrollOptions;
 
     const state: State = {
         docScroll: 0,
@@ -75,18 +59,16 @@ export default function createLitScroll(_options: LitScrollOptions = defaultOpti
         windowHeight: window.innerHeight,
     };
 
-    const renderedStyles = {
-        translationY: {
-            // interpolated value
-            previous: 0,
-            // current value
-            current: 0,
-            // amount to interpolate
-            ease: options.ease,
-            // current value setter
-            // in this case the value of the translation will be the same as the document scroll
-            setValue: () => state.docScroll,
-        },
+    const translationY = {
+        // interpolated value
+        previous: 0,
+        // current value
+        current: 0,
+        // amount to interpolate
+        ease: options.ease,
+        // current value setter
+        // in this case the value of the translation will be the same as the document scroll
+        setValue: () => state.docScroll,
     };
 
     function getWindowSize() {
@@ -99,56 +81,67 @@ export default function createLitScroll(_options: LitScrollOptions = defaultOpti
     }
 
     function translateScrollableElement() {
-        DOM.scrollable.style.transform = `translate3d(0,${-1 * renderedStyles.translationY.previous}px,0)`;
+        scrollableContainer.style.transform = `translate3d(0,${-1 * translationY.previous}px,0)`;
     }
 
     function update() {
         // sets the initial value (no interpolation) - translate the scroll value
-        renderedStyles.translationY.current = renderedStyles.translationY.setValue();
-        renderedStyles.translationY.previous = renderedStyles.translationY.setValue();
+        translationY.current = translationY.setValue();
+        translationY.previous = translationY.setValue();
         translateScrollableElement();
     }
 
     function setBodyHeight() {
         // set the height of the body in order to keep the scrollbar on the page
-        document.body.style.height = `${DOM.scrollable.scrollHeight}px`;
+        document.body.style.height = `${scrollableContainer.scrollHeight}px`;
     }
 
     function unsetBodyHeight() {
         document.body.style.height = '';
     }
 
+    function styleHtmlElement() {
+        document.documentElement.classList.add('lit-scroll-initialized');
+    }
+
+    function removeHtmlElementStyles() {
+        document.documentElement.classList.remove('lit-scroll-initialized');
+    }
+
     function styleMainElement() {
-        // the DOM.main needs to "stick" to the screen and not scroll
+        // the wrapper needs to "stick" to the screen and not scroll
         // for that we set it to position fixed and overflow hidden
-        DOM.main.style.position = 'fixed';
-        DOM.main.style.width = '100%';
-        DOM.main.style.height = '100%';
-        DOM.main.style.top = '0';
-        DOM.main.style.left = '0';
-        DOM.main.style.overflow = 'hidden';
+        wrapper.style.position = 'fixed';
+        wrapper.style.width = '100%';
+        wrapper.style.height = '100%';
+        wrapper.style.top = '0';
+        wrapper.style.left = '0';
+        wrapper.style.overflow = 'hidden';
     }
 
     function removeMainElementStyles() {
-        // the DOM.main needs to "stick" to the screen and not scroll
+        // the wrapper needs to "stick" to the screen and not scroll
         // for that we set it to position fixed and overflow hidden
-        DOM.main.style.position = '';
-        DOM.main.style.width = '';
-        DOM.main.style.height = '';
-        DOM.main.style.top = '';
-        DOM.main.style.left = '';
-        DOM.main.style.overflow = '';
+        wrapper.style.position = '';
+        wrapper.style.width = '';
+        wrapper.style.height = '';
+        wrapper.style.top = '';
+        wrapper.style.left = '';
+        wrapper.style.overflow = '';
+    }
+
+    function onResize() {
+        getWindowSize();
+        setBodyHeight();
     }
 
     function initEvents() {
-        window.addEventListener('resize', getWindowSize);
-        window.addEventListener('resize', setBodyHeight);
+        window.addEventListener('resize', onResize);
         window.addEventListener('scroll', getPageYScroll);
     }
 
     function destroyEvents() {
-        window.removeEventListener('resize', getWindowSize);
-        window.removeEventListener('resize', setBodyHeight);
+        window.removeEventListener('resize', onResize);
         window.removeEventListener('scroll', getPageYScroll);
     }
 
@@ -159,30 +152,22 @@ export default function createLitScroll(_options: LitScrollOptions = defaultOpti
     function render() {
         // update the current and interpolated values
         if (state.scrollToValue) {
-            renderedStyles.translationY.current = state.scrollToValue;
-            const interpolatedPrev = lerp(
-                renderedStyles.translationY.previous,
-                renderedStyles.translationY.current,
-                renderedStyles.translationY.ease,
-            );
-            renderedStyles.translationY.previous = interpolatedPrev;
+            translationY.current = state.scrollToValue;
+            const interpolatedPrev = lerp(translationY.previous, translationY.current, translationY.ease);
+            translationY.previous = interpolatedPrev;
             window.scrollTo(0, interpolatedPrev);
         } else {
-            renderedStyles.translationY.current = renderedStyles.translationY.setValue();
-            renderedStyles.translationY.previous = lerp(
-                renderedStyles.translationY.previous,
-                renderedStyles.translationY.current,
-                renderedStyles.translationY.ease,
-            );
+            translationY.current = translationY.setValue();
+            translationY.previous = lerp(translationY.previous, translationY.current, translationY.ease);
         }
 
-        if (Math.abs(renderedStyles.translationY.previous - renderedStyles.translationY.current) > 0.9) {
+        if (Math.abs(translationY.previous - translationY.current) > 0.9) {
             listeners.forEach(([eventName, fn]) => {
                 if (eventName === 'scroll') {
                     fn({
                         docScrollValue: state.docScroll,
-                        scrollValue: renderedStyles.translationY.previous,
-                        maxHeight: DOM.scrollable.scrollHeight,
+                        scrollValue: translationY.previous,
+                        maxHeight: scrollableContainer.scrollHeight,
                     });
                 }
             });
@@ -229,12 +214,14 @@ export default function createLitScroll(_options: LitScrollOptions = defaultOpti
     };
 
     function init() {
+        getPageYScroll();
         getWindowSize();
         setBodyHeight();
         update();
         styleMainElement();
         initEvents();
         rAF = requestAnimationFrame(render);
+        styleHtmlElement();
     }
 
     function destroy() {
@@ -243,6 +230,7 @@ export default function createLitScroll(_options: LitScrollOptions = defaultOpti
         listeners.clear();
         unsetBodyHeight();
         removeMainElementStyles();
+        removeHtmlElementStyles();
     }
 
     init();
