@@ -8,15 +8,14 @@ type LitScrollListenerEvent = {
     maxHeight: number;
 };
 
-type LitScrollListener = (event: LitScrollListenerEvent) => void;
-
-type ListenerFunction = (eventName: EventName, fn: LitScrollListener) => void;
+type ListenerFunction = (eventName: EventName, fn: (event: LitScrollListenerEvent) => void) => void;
 
 type ScrollTo = (target: number | string | Element, options?: { native: boolean }) => number | null;
 
 type LitScrollInstance = {
     getCurrentValue: () => number;
     on: ListenerFunction;
+    off: ListenerFunction;
     scrollTo: ScrollTo;
     destroy: () => void;
 };
@@ -37,8 +36,10 @@ const defaultOptions: LitScrollOptions = {
 };
 
 export default function createLitScroll(_options: Partial<LitScrollOptions> = defaultOptions): LitScrollInstance {
-    const wrapper = document.body.querySelector('[data-lit-scroll-wrapper]') as HTMLElement;
-    const scrollableContainer = document.body.querySelector('[data-lit-scroll-container]') as HTMLElement;
+    const html = document.documentElement;
+    const { body } = document;
+    const wrapper = body.querySelector('[data-lit-scroll="wrapper"]') as HTMLElement;
+    const scrollableContainer = body.querySelector('[data-lit-scroll="container"]') as HTMLElement;
 
     if (!wrapper) {
         throw new Error('[lit-scroll] Wrapper element not found.');
@@ -49,7 +50,7 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = de
     }
 
     let rAF = 0;
-    const listeners = new Set<[EventName, LitScrollListener]>();
+    const listeners = new Set<[EventName, (event: LitScrollListenerEvent) => void]>();
     const options = { ...defaultOptions, ..._options } as LitScrollOptions;
 
     const state: State = {
@@ -77,7 +78,7 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = de
     }
 
     function getPageYScroll() {
-        state.docScroll = window.pageYOffset || document.documentElement.scrollTop;
+        state.docScroll = window.pageYOffset || html.scrollTop;
     }
 
     function translateScrollableElement() {
@@ -93,19 +94,19 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = de
 
     function setBodyHeight() {
         // set the height of the body in order to keep the scrollbar on the page
-        document.body.style.height = `${scrollableContainer.scrollHeight}px`;
+        body.style.height = `${scrollableContainer.scrollHeight}px`;
     }
 
     function unsetBodyHeight() {
-        document.body.style.height = '';
+        body.style.height = '';
     }
 
     function styleHtmlElement() {
-        document.documentElement.classList.add('lit-scroll-initialized');
+        html.classList.add('lit-scroll-initialized');
     }
 
     function removeHtmlElementStyles() {
-        document.documentElement.classList.remove('lit-scroll-initialized');
+        html.classList.remove('lit-scroll-initialized');
     }
 
     function styleMainElement() {
@@ -147,6 +148,10 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = de
 
     const on: ListenerFunction = (eventName, fn) => {
         listeners.add([eventName, fn]);
+    };
+
+    const off: ListenerFunction = (eventName, fn) => {
+        listeners.delete([eventName, fn]);
     };
 
     function render() {
@@ -236,9 +241,10 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = de
     init();
 
     return {
+        destroy,
         getCurrentValue,
         on,
+        off,
         scrollTo,
-        destroy,
     };
 }
