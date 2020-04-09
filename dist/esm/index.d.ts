@@ -5,12 +5,9 @@ declare type LitScrollListenerEvent = {
     maxHeight: number;
 };
 declare type ListenerFunction = (eventName: EventName, fn: (event: LitScrollListenerEvent) => void) => void;
-declare type ScrollTo = (
-    target: number | string | Element,
-    options?: {
-        native: boolean;
-    },
-) => number | null;
+declare type ScrollTo = (target: number | string | Element, options?: {
+    native: boolean;
+}) => number | null;
 declare type LitScrollInstance = {
     getCurrentValue: () => number;
     on: ListenerFunction;

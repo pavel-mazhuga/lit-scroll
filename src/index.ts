@@ -60,17 +60,9 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = de
         windowHeight: window.innerHeight,
     };
 
-    const translationY = {
-        // interpolated value
-        previous: 0,
-        // current value
-        current: 0,
-        // amount to interpolate
-        ease: options.ease,
-        // current value setter
-        // in this case the value of the translation will be the same as the document scroll
-        setValue: () => state.docScroll,
-    };
+    let previous = 0;
+    let current = 0;
+    let ro: ResizeObserver | null;
 
     function getWindowSize() {
         state.windowWidth = window.innerWidth;
@@ -82,18 +74,16 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = de
     }
 
     function translateScrollableElement() {
-        scrollableContainer.style.transform = `translate3d(0,${-1 * translationY.previous}px,0)`;
+        scrollableContainer.style.transform = `translate3d(0,${-1 * previous}px,0)`;
     }
 
     function update() {
-        // sets the initial value (no interpolation) - translate the scroll value
-        translationY.current = translationY.setValue();
-        translationY.previous = translationY.setValue();
+        current = state.docScroll;
+        previous = state.docScroll;
         translateScrollableElement();
     }
 
     function setBodyHeight() {
-        // set the height of the body in order to keep the scrollbar on the page
         body.style.height = `${scrollableContainer.scrollHeight}px`;
     }
 
@@ -110,8 +100,6 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = de
     }
 
     function styleMainElement() {
-        // the wrapper needs to "stick" to the screen and not scroll
-        // for that we set it to position fixed and overflow hidden
         wrapper.style.position = 'fixed';
         wrapper.style.width = '100%';
         wrapper.style.height = '100%';
@@ -121,8 +109,6 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = de
     }
 
     function removeMainElementStyles() {
-        // the wrapper needs to "stick" to the screen and not scroll
-        // for that we set it to position fixed and overflow hidden
         wrapper.style.position = '';
         wrapper.style.width = '';
         wrapper.style.height = '';
@@ -146,6 +132,24 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = de
         window.removeEventListener('scroll', getPageYScroll);
     }
 
+    function initResizeObserver() {
+        if (window.ResizeObserver) {
+            ro = new ResizeObserver(entries => {
+                entries.forEach(() => {
+                    setBodyHeight();
+                });
+            });
+
+            ro.observe(scrollableContainer);
+        }
+    }
+
+    function destroyResizeObserver() {
+        if (ro) {
+            ro.disconnect();
+        }
+    }
+
     const on: ListenerFunction = (eventName, fn) => {
         listeners.add([eventName, fn]);
     };
@@ -157,21 +161,21 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = de
     function render() {
         // update the current and interpolated values
         if (state.scrollToValue) {
-            translationY.current = state.scrollToValue;
-            const interpolatedPrev = lerp(translationY.previous, translationY.current, translationY.ease);
-            translationY.previous = interpolatedPrev;
+            current = state.scrollToValue;
+            const interpolatedPrev = lerp(previous, current, options.ease);
+            previous = interpolatedPrev;
             window.scrollTo(0, interpolatedPrev);
         } else {
-            translationY.current = translationY.setValue();
-            translationY.previous = lerp(translationY.previous, translationY.current, translationY.ease);
+            current = state.docScroll;
+            previous = lerp(previous, current, options.ease);
         }
 
-        if (Math.abs(translationY.previous - translationY.current) > 0.9) {
+        if (Math.abs(previous - current) > 0.9) {
             listeners.forEach(([eventName, fn]) => {
                 if (eventName === 'scroll') {
                     fn({
                         docScrollValue: state.docScroll,
-                        scrollValue: translationY.previous,
+                        scrollValue: previous,
                         maxHeight: scrollableContainer.scrollHeight,
                     });
                 }
@@ -225,12 +229,14 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = de
         update();
         styleMainElement();
         initEvents();
+        initResizeObserver();
         rAF = requestAnimationFrame(render);
         styleHtmlElement();
     }
 
     function destroy() {
         cancelAnimationFrame(rAF);
+        destroyResizeObserver();
         destroyEvents();
         listeners.clear();
         unsetBodyHeight();
