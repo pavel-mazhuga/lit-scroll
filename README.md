@@ -7,6 +7,10 @@
 Install it from NPM:
 `npm i lit-scroll`
 
+## Browser Support
+
+The library uses a `ResizeObserver` to listen to scrollable element size changing. In order to support Safari and IE, you should use `ResizeObserver` polyfill (`https://github.com/que-etc/resize-observer-polyfill`);
+
 ## Usage
 
 In yout HTML:
