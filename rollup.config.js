@@ -14,7 +14,7 @@ export default {
         {
             file: pkg.main,
             format: 'umd',
-            name: 'LitScroll',
+            name: 'createLitScroll',
         },
         {
             file: pkg.module,
