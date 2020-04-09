@@ -84,7 +84,7 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = de
     }
 
     function setBodyHeight() {
-        body.style.height = `${scrollableContainer.scrollHeight}px`;
+        body.style.height = `${scrollableContainer.scrollHeight + scrollableContainer.getBoundingClientRect().top}px`;
     }
 
     function unsetBodyHeight() {
@@ -99,7 +99,7 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = de
         html.classList.remove('lit-scroll-initialized');
     }
 
-    function styleMainElement() {
+    function styleWrapper() {
         wrapper.style.position = 'fixed';
         wrapper.style.width = '100%';
         wrapper.style.height = '100%';
@@ -108,7 +108,7 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = de
         wrapper.style.overflow = 'hidden';
     }
 
-    function removeMainElementStyles() {
+    function removeWrapperStyles() {
         wrapper.style.position = '';
         wrapper.style.width = '';
         wrapper.style.height = '';
@@ -227,7 +227,7 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = de
         getWindowSize();
         setBodyHeight();
         update();
-        styleMainElement();
+        styleWrapper();
         initEvents();
         initResizeObserver();
         rAF = requestAnimationFrame(render);
@@ -240,7 +240,7 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = de
         destroyEvents();
         listeners.clear();
         unsetBodyHeight();
-        removeMainElementStyles();
+        removeWrapperStyles();
         removeHtmlElementStyles();
     }
 
