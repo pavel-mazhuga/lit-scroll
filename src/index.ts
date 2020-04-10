@@ -51,10 +51,6 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
         state.windowHeight = window.innerHeight;
     }
 
-    function getInitialPageYScroll() {
-        state.docScroll = (window.pageYOffset || html.scrollTop) + getOffsetTop(scrollableContainer);
-    }
-
     function getPageYScroll() {
         state.docScroll = window.pageYOffset || html.scrollTop;
     }
@@ -206,7 +202,7 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
     };
 
     function init() {
-        getInitialPageYScroll();
+        getPageYScroll();
         getWindowSize();
         setBodyHeight();
         styleHtmlElement();
