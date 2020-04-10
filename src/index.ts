@@ -170,7 +170,7 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = de
             previous = lerp(previous, current, options.ease);
         }
 
-        if (Math.abs(previous - current) > 0.9) {
+        if (Math.abs(previous - current) > 1) {
             listeners.forEach(([eventName, fn]) => {
                 if (eventName === 'scroll') {
                     fn({
