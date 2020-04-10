@@ -141,11 +141,18 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
     };
 
     function render() {
-        if (state.scrollToValue && Math.abs(previous - current) > 1) {
+        if (state.scrollToValue) {
             current = state.scrollToValue;
             const interpolatedPrev = lerp(previous, current, options.ease);
             previous = interpolatedPrev;
             window.scrollTo(0, interpolatedPrev);
+        } else {
+            current = state.docScroll;
+            const interpolatedPrev = lerp(previous, current, options.ease);
+            previous = interpolatedPrev > 1 ? interpolatedPrev : current;
+        }
+
+        if (Math.abs(previous - current) > 1) {
             listeners.forEach(([eventName, fn]) => {
                 if (eventName === 'scroll') {
                     fn({
@@ -157,9 +164,6 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
             });
         } else {
             state.scrollToValue = null;
-            current = state.docScroll;
-            const interpolatedPrev = lerp(previous, current, options.ease);
-            previous = interpolatedPrev > 1 ? interpolatedPrev : current;
         }
 
         translateScrollableElement();
