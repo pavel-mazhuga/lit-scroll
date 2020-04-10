@@ -1,45 +1,27 @@
-import { lerp } from './utils';
+import {
+    LitScrollOptions,
+    LitScrollInstance,
+    ScrollToOptions,
+    EventName,
+    LitScrollListenerEvent,
+    State,
+    ListenerFunction,
+    ScrollTo,
+} from './types';
+import { lerp, getOffsetTop } from './utils';
 
-type EventName = 'scroll';
-
-type LitScrollListenerEvent = {
-    docScrollValue: number;
-    scrollValue: number;
-    maxHeight: number;
-};
-
-type ListenerFunction = (eventName: EventName, fn: (event: LitScrollListenerEvent) => void) => void;
-
-type ScrollTo = (target: number | string | Element, options?: { native: boolean }) => number | null;
-
-type LitScrollInstance = {
-    getCurrentValue: () => number;
-    on: ListenerFunction;
-    off: ListenerFunction;
-    scrollTo: ScrollTo;
-    destroy: () => void;
-};
-
-type State = {
-    docScroll: number;
-    scrollToValue: number | null;
-    windowWidth: number;
-    windowHeight: number;
-};
-
-type LitScrollOptions = {
-    ease: number;
-};
+const INITIALIZED_CLASS = 'lit-scroll-initialized';
 
 const defaultOptions: LitScrollOptions = {
     ease: 0.1,
 };
 
-export default function createLitScroll(_options: Partial<LitScrollOptions> = defaultOptions): LitScrollInstance {
+export default function createLitScroll(_options: Partial<LitScrollOptions> = {}): LitScrollInstance {
     const html = document.documentElement;
     const { body } = document;
     const wrapper = body.querySelector('[data-lit-scroll="wrapper"]') as HTMLElement;
     const scrollableContainer = body.querySelector('[data-lit-scroll="container"]') as HTMLElement;
+    const defaultScrollToOptions: ScrollToOptions = { native: false };
 
     if (!wrapper) {
         throw new Error('[lit-scroll] Wrapper element not found.');
@@ -69,6 +51,10 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = de
         state.windowHeight = window.innerHeight;
     }
 
+    function getInitialPageYScroll() {
+        state.docScroll = (window.pageYOffset || html.scrollTop) + getOffsetTop(scrollableContainer);
+    }
+
     function getPageYScroll() {
         state.docScroll = window.pageYOffset || html.scrollTop;
     }
@@ -84,7 +70,7 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = de
     }
 
     function setBodyHeight() {
-        body.style.height = `${scrollableContainer.scrollHeight + scrollableContainer.getBoundingClientRect().top}px`;
+        body.style.height = `${scrollableContainer.scrollHeight + getOffsetTop(scrollableContainer)}px`;
     }
 
     function unsetBodyHeight() {
@@ -92,11 +78,11 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = de
     }
 
     function styleHtmlElement() {
-        html.classList.add('lit-scroll-initialized');
+        html.classList.add(INITIALIZED_CLASS);
     }
 
     function removeHtmlElementStyles() {
-        html.classList.remove('lit-scroll-initialized');
+        html.classList.remove(INITIALIZED_CLASS);
     }
 
     function styleWrapper() {
@@ -188,7 +174,8 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = de
         return state.docScroll;
     }
 
-    const scrollTo: ScrollTo = (target, opts = { native: false }) => {
+    const scrollTo: ScrollTo = (target, opts: Partial<ScrollToOptions> = {}) => {
+        const options: ScrollToOptions = { ...defaultScrollToOptions, ...opts };
         let offsetY: number | null = null;
 
         if (typeof target === 'number') {
@@ -208,7 +195,7 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = de
         }
 
         if (offsetY) {
-            if (opts.native && window.CSS?.supports?.('scroll-behavior', 'smooth')) {
+            if (options.native && window.CSS?.supports?.('scroll-behavior', 'smooth')) {
                 window.scrollTo({ top: offsetY, behavior: 'smooth' });
             } else {
                 state.scrollToValue = offsetY;
@@ -219,15 +206,15 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = de
     };
 
     function init() {
-        getPageYScroll();
+        getInitialPageYScroll();
         getWindowSize();
         setBodyHeight();
-        update();
+        styleHtmlElement();
         styleWrapper();
         initEvents();
         initResizeObserver();
+        update();
         rAF = requestAnimationFrame(render);
-        styleHtmlElement();
     }
 
     function destroy() {
