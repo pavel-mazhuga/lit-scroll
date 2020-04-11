@@ -117,9 +117,7 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
     function initResizeObserver() {
         if (window.ResizeObserver) {
             ro = new ResizeObserver(entries => {
-                entries.forEach(() => {
-                    setBodyHeight();
-                });
+                entries.forEach(setBodyHeight);
             });
 
             ro.observe(scrollableContainer);

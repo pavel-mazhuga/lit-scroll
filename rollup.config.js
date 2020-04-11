@@ -5,20 +5,19 @@ import { eslint } from 'rollup-plugin-eslint';
 import pkg from './package.json';
 
 const extensions = ['.js', '.jsx', '.ts', '.tsx'];
-
 const external = [...Object.keys(pkg.dependencies || {}), ...Object.keys(pkg.peerDependencies || {})];
 
 export default {
     input: 'src/index.ts',
     output: [
         {
-            file: pkg.main,
-            format: 'umd',
-            name: 'createLitScroll',
-        },
-        {
             file: pkg.module,
             format: 'esm',
+        },
+        {
+            file: pkg.main,
+            format: 'iife',
+            name: 'createLitScroll',
         },
     ],
     external,
