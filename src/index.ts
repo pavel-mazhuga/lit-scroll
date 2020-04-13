@@ -4,12 +4,12 @@ import {
     ScrollToOptions,
     EventName,
     LitScrollListenerEvent,
-    State,
     ListenerFunction,
     ScrollTo,
 } from './types';
-import { lerp, getOffsetTop } from './utils';
+import { lerp } from './utils';
 
+const NAME = 'lit-scroll';
 const INITIALIZED_CLASS = 'lit-scroll-initialized';
 
 const defaultOptions: LitScrollOptions = {
@@ -24,35 +24,26 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
     const defaultScrollToOptions: ScrollToOptions = { native: false };
 
     if (!wrapper) {
-        throw new Error('[lit-scroll] Wrapper element not found.');
+        throw new Error(`[${NAME}] Wrapper element not found.`);
     }
 
     if (!scrollableContainer) {
-        throw new Error('[lit-scroll] Container element not found.');
+        throw new Error(`[${NAME}] Container element not found.`);
     }
 
     let rAF = 0;
     const listeners = new Set<[EventName, (event: LitScrollListenerEvent) => void]>();
     const options = { ...defaultOptions, ..._options } as LitScrollOptions;
 
-    const state: State = {
-        docScroll: 0,
-        scrollToValue: null,
-        windowWidth: window.innerWidth,
-        windowHeight: window.innerHeight,
-    };
+    let docScroll = 0;
+    let scrollToValue: number | null = 0;
 
     let previous = 0;
     let current = 0;
     let ro: ResizeObserver | null;
 
-    function getWindowSize() {
-        state.windowWidth = window.innerWidth;
-        state.windowHeight = window.innerHeight;
-    }
-
     function getPageYScroll() {
-        state.docScroll = window.pageYOffset || html.scrollTop;
+        docScroll = window.pageYOffset || html.scrollTop;
     }
 
     function translateScrollableElement() {
@@ -60,13 +51,14 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
     }
 
     function update() {
-        current = state.docScroll;
-        previous = state.docScroll;
+        current = docScroll;
+        previous = docScroll;
         translateScrollableElement();
     }
 
     function setBodyHeight() {
-        body.style.height = `${scrollableContainer.scrollHeight + getOffsetTop(scrollableContainer)}px`;
+        const { top, height } = scrollableContainer.getBoundingClientRect();
+        body.style.height = `${height + top + docScroll}px`;
     }
 
     function unsetBodyHeight() {
@@ -100,7 +92,8 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
     }
 
     function onResize() {
-        getWindowSize();
+        getPageYScroll();
+        update();
         setBodyHeight();
     }
 
@@ -139,13 +132,13 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
     };
 
     function render() {
-        if (state.scrollToValue) {
-            current = state.scrollToValue;
+        if (scrollToValue) {
+            current = scrollToValue;
             const interpolatedPrev = lerp(previous, current, options.ease);
             previous = interpolatedPrev;
             window.scrollTo(0, interpolatedPrev);
         } else {
-            current = state.docScroll;
+            current = docScroll;
             const interpolatedPrev = lerp(previous, current, options.ease);
             previous = interpolatedPrev > 1 ? interpolatedPrev : current;
         }
@@ -154,14 +147,14 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
             listeners.forEach(([eventName, fn]) => {
                 if (eventName === 'scroll') {
                     fn({
-                        docScrollValue: state.docScroll,
+                        docScrollValue: docScroll,
                         scrollValue: previous,
                         maxHeight: scrollableContainer.scrollHeight,
                     });
                 }
             });
         } else {
-            state.scrollToValue = null;
+            scrollToValue = null;
         }
 
         translateScrollableElement();
@@ -169,7 +162,7 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
     }
 
     function getCurrentValue() {
-        return state.docScroll;
+        return docScroll;
     }
 
     const scrollTo: ScrollTo = (target, opts: Partial<ScrollToOptions> = {}) => {
@@ -196,7 +189,7 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
             if (options.native && window.CSS?.supports?.('scroll-behavior', 'smooth')) {
                 window.scrollTo({ top: offsetY, behavior: 'smooth' });
             } else {
-                state.scrollToValue = offsetY;
+                scrollToValue = offsetY;
             }
         }
 
@@ -205,7 +198,6 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
 
     function init() {
         getPageYScroll();
-        getWindowSize();
         setBodyHeight();
         styleHtmlElement();
         styleWrapper();
