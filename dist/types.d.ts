@@ -15,12 +15,6 @@ export declare type LitScrollInstance = {
     scrollTo: ScrollTo;
     destroy: () => void;
 };
-export declare type State = {
-    docScroll: number;
-    scrollToValue: number | null;
-    windowWidth: number;
-    windowHeight: number;
-};
 export declare type LitScrollOptions = {
     ease: number;
 };
