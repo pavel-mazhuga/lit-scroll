@@ -39,7 +39,6 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
     let scrollToValue: number | null = 0;
 
     let previous = 0;
-    let current = 0;
     let ro: ResizeObserver | null;
 
     function getPageYScroll() {
@@ -51,7 +50,6 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
     }
 
     function update() {
-        current = docScroll;
         previous = docScroll;
         translateScrollableElement();
     }
@@ -133,17 +131,15 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
 
     function render() {
         if (scrollToValue) {
-            current = scrollToValue;
-            const interpolatedPrev = lerp(previous, current, options.ease);
+            const interpolatedPrev = lerp(previous, scrollToValue, options.ease);
             previous = interpolatedPrev;
             window.scrollTo(0, interpolatedPrev);
         } else {
-            current = docScroll;
-            const interpolatedPrev = lerp(previous, current, options.ease);
-            previous = interpolatedPrev > 1 ? interpolatedPrev : current;
+            const interpolatedPrev = lerp(previous, docScroll, options.ease);
+            previous = interpolatedPrev > 1 ? interpolatedPrev : docScroll;
         }
 
-        if (Math.abs(previous - current) > 1) {
+        if (Math.abs(previous - docScroll) > 1) {
             listeners.forEach(([eventName, fn]) => {
                 if (eventName === 'scroll') {
                     fn({
