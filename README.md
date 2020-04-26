@@ -15,7 +15,7 @@ The library uses a `ResizeObserver` (conditionally) to listen to scrollable elem
 
 ## Usage
 
-In yout HTML:
+In your HTML:
 
 ```html
 <body>
