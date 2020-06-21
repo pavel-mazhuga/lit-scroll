@@ -34,10 +34,9 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
     let rAF = 0;
     const listeners = new Set<[EventName, (event: LitScrollListenerEvent) => void]>();
     const options = { ...defaultOptions, ..._options } as LitScrollOptions;
-
     let docScroll = 0;
     let scrollToValue: number | null = 0;
-
+    let scrollHeight = 0;
     let previous = 0;
     let ro: ResizeObserver | null;
 
@@ -54,9 +53,12 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
         translateScrollableElement();
     }
 
+    function setScrollHeight() {
+        scrollHeight = scrollableContainer.scrollHeight;
+    }
+
     function setBodyHeight() {
-        const { top, height } = scrollableContainer.getBoundingClientRect();
-        body.style.height = `${height + top + docScroll}px`;
+        body.style.height = `${scrollHeight}px`;
     }
 
     function unsetBodyHeight() {
@@ -92,6 +94,7 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
     function onResize() {
         getPageYScroll();
         update();
+        setScrollHeight();
         setBodyHeight();
     }
 
@@ -105,10 +108,15 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
         window.removeEventListener('scroll', getPageYScroll);
     }
 
+    function onResizeObserverTrigger() {
+        setScrollHeight();
+        setBodyHeight();
+    }
+
     function initResizeObserver() {
         if (window.ResizeObserver) {
-            ro = new ResizeObserver(entries => {
-                entries.forEach(setBodyHeight);
+            ro = new ResizeObserver((entries) => {
+                entries.forEach(onResizeObserverTrigger);
             });
 
             ro.observe(scrollableContainer);
@@ -136,16 +144,16 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
             window.scrollTo(0, interpolatedPrev);
         } else {
             const interpolatedPrev = lerp(previous, docScroll, options.ease);
-            previous = interpolatedPrev > 1 ? interpolatedPrev : docScroll;
+            previous = interpolatedPrev > 0.5 ? interpolatedPrev : docScroll;
         }
 
-        if (Math.abs(previous - docScroll) > 1) {
+        if (Math.abs(previous - docScroll) > 0.5) {
             listeners.forEach(([eventName, fn]) => {
                 if (eventName === 'scroll') {
                     fn({
                         docScrollValue: docScroll,
                         scrollValue: previous,
-                        maxHeight: scrollableContainer.scrollHeight,
+                        maxHeight: scrollHeight,
                     });
                 }
             });
@@ -195,6 +203,7 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
     function init() {
         getPageYScroll();
         setBodyHeight();
+        setScrollHeight();
         styleHtmlElement();
         styleWrapper();
         initEvents();
