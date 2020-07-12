@@ -37,6 +37,13 @@ import createLitScroll from 'lit-scroll';
 const scroll = createLitScroll();
 ```
 
+## Options
+
+| Option | Default | Description                                                                                |
+| ------ | ------- | ------------------------------------------------------------------------------------------ |
+| ease   | 0.1     | Number. Configures linear interpolation "strength".                                        |
+| mobile | true    | Boolean. Indicates whether or not library should take over native scroll on mobile devices |
+
 ## API
 
 ### Methods
@@ -46,5 +53,5 @@ const scroll = createLitScroll();
 | on              | (event: 'scroll', fn: Function) | Add a scroll listener, which executes a specified function on every scroll change |
 | off             | (event: 'scroll', fn: Function) | Remove a scroll listener animation                                                |
 | scrollTo        | (target: string                 | number                                                                            | Element, opts: { native?: boolean }) | Scroll to an element (via selector, document top offset, or element reference) |
-| getCurrentValue | none                            | Get a current scroll value                                                        |
+| getCurrentValue | none                            | Get a current document scroll value                                               |
 | destroy         | none                            | Destroy an instance                                                               |
