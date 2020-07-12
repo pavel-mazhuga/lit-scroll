@@ -9,7 +9,7 @@ Install it from NPM:
 
 ## Browser Support
 
-The library uses a `ResizeObserver` (conditionally) to listen to scrollable element size changing. In order to support dynamic scrollable container size changing in Safari and IE, you should use `ResizeObserver` polyfill (<https://github.com/que-etc/resize-observer-polyfill>).
+The library uses a `ResizeObserver` (conditionally) to listen to scrollable element size change. In order to support dynamic scrollable container size change in Safari and IE, you should use `ResizeObserver` polyfill (<https://github.com/que-etc/resize-observer-polyfill>).
 
 **IMPORTANT:** The library's default compilation target is ES6. If you need to support ES5 environments - consider transpiling it.
 
