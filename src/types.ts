@@ -20,6 +20,7 @@ export type LitScrollInstance = {
 
 export type LitScrollOptions = {
     ease: number;
+    mobile: boolean;
 };
 
 export type ScrollToOptions = {

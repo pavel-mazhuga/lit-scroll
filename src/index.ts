@@ -7,14 +7,17 @@ import {
     ListenerFunction,
     ScrollTo,
 } from './types';
-import { lerp } from './utils';
+import { lerp, isMobileDevice } from './utils';
 
 const NAME = 'lit-scroll';
 const INITIALIZED_CLASS = 'lit-scroll-initialized';
 
 const defaultOptions: LitScrollOptions = {
     ease: 0.1,
+    mobile: true,
 };
+
+let isMobile = isMobileDevice();
 
 export default function createLitScroll(_options: Partial<LitScrollOptions> = {}): LitScrollInstance {
     const html = document.documentElement;
@@ -22,6 +25,7 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
     const wrapper = body.querySelector('[data-lit-scroll="wrapper"]') as HTMLElement;
     const scrollableContainer = body.querySelector('[data-lit-scroll="container"]') as HTMLElement;
     const defaultScrollToOptions: ScrollToOptions = { native: false };
+    let isInitialized = false;
 
     if (!wrapper) {
         throw new Error(`[${NAME}] Wrapper element not found.`);
@@ -50,7 +54,10 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
 
     function update() {
         previous = docScroll;
-        translateScrollableElement();
+
+        if (!isMobile || (isMobile && options.mobile)) {
+            translateScrollableElement();
+        }
     }
 
     function setScrollHeight() {
@@ -91,11 +98,23 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
         wrapper.style.overflow = '';
     }
 
+    function removeContainerStyles() {
+        scrollableContainer.style.transform = '';
+        window.scrollTo({ top: docScroll, behavior: 'auto' });
+    }
+
     function onResize() {
+        isMobile = isMobileDevice();
+
+        attemptToInit();
+
         getPageYScroll();
         update();
         setScrollHeight();
-        setBodyHeight();
+
+        if (!isMobile || (isMobile && options.mobile)) {
+            setBodyHeight();
+        }
     }
 
     function initEvents() {
@@ -110,7 +129,10 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
 
     function onResizeObserverTrigger() {
         setScrollHeight();
-        setBodyHeight();
+
+        if (!isMobile || (isMobile && options.mobile)) {
+            setBodyHeight();
+        }
     }
 
     function initResizeObserver() {
@@ -161,8 +183,11 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
             scrollToValue = null;
         }
 
-        translateScrollableElement();
-        requestAnimationFrame(render);
+        if (!isMobile || (isMobile && options.mobile)) {
+            translateScrollableElement();
+        }
+
+        rAF = requestAnimationFrame(render);
     }
 
     function getCurrentValue() {
@@ -170,7 +195,7 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
     }
 
     const scrollTo: ScrollTo = (target, opts: Partial<ScrollToOptions> = {}) => {
-        const options: ScrollToOptions = { ...defaultScrollToOptions, ...opts };
+        const scrollOptions: ScrollToOptions = { ...defaultScrollToOptions, ...opts };
         let offsetY: number | null = null;
 
         if (typeof target === 'number') {
@@ -190,26 +215,63 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
         }
 
         if (offsetY) {
-            if (options.native && window.CSS?.supports?.('scroll-behavior', 'smooth')) {
+            if (scrollOptions.native && window.CSS?.supports?.('scroll-behavior', 'smooth')) {
                 window.scrollTo({ top: offsetY, behavior: 'smooth' });
             } else {
                 scrollToValue = offsetY;
+
+                if (isMobile && !options.mobile) {
+                    window.scrollTo({ top: offsetY, behavior: 'smooth' });
+                }
             }
         }
 
         return offsetY;
     };
 
+    function onNativeScroll() {
+        listeners.forEach(([, fn]) => {
+            fn({
+                docScrollValue: docScroll,
+                scrollValue: docScroll,
+                maxHeight: scrollHeight,
+            });
+        });
+
+        previous = docScroll;
+    }
+
+    function attemptToInit() {
+        if (!isMobile || (isMobile && options.mobile)) {
+            if (!isInitialized) {
+                rAF = requestAnimationFrame(render);
+                setBodyHeight();
+                styleHtmlElement();
+                styleWrapper();
+                document.removeEventListener('scroll', onNativeScroll);
+                isInitialized = true;
+            }
+        } else {
+            if (isInitialized) {
+                cancelAnimationFrame(rAF);
+                unsetBodyHeight();
+                removeWrapperStyles();
+                removeHtmlElementStyles();
+                removeContainerStyles();
+                isInitialized = false;
+            }
+
+            document.addEventListener('scroll', onNativeScroll);
+        }
+    }
+
     function init() {
         getPageYScroll();
-        setBodyHeight();
         setScrollHeight();
-        styleHtmlElement();
-        styleWrapper();
         initEvents();
         initResizeObserver();
         update();
-        rAF = requestAnimationFrame(render);
+        attemptToInit();
     }
 
     function destroy() {
@@ -220,6 +282,9 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
         unsetBodyHeight();
         removeWrapperStyles();
         removeHtmlElementStyles();
+        removeContainerStyles();
+        document.removeEventListener('scroll', onNativeScroll);
+        isInitialized = false;
     }
 
     init();
