@@ -48,10 +48,10 @@ const scroll = createLitScroll();
 
 ### Methods
 
-| Method          | Parameters                      | Description                                                                       |
-| --------------- | ------------------------------- | --------------------------------------------------------------------------------- |
-| on              | (event: 'scroll', fn: Function) | Add a scroll listener, which executes a specified function on every scroll change |
-| off             | (event: 'scroll', fn: Function) | Remove a scroll listener animation                                                |
-| scrollTo        | (target: string                 | number                                                                            | Element, opts: { native?: boolean }) | Scroll to an element (via selector, document top offset, or element reference) |
-| getCurrentValue | none                            | Get a current document scroll value                                               |
-| destroy         | none                            | Destroy an instance                                                               |
+| Method          | Parameters                      | Description                                                                                                                                                                                                                     |
+| --------------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| on              | (event: 'scroll', fn: Function) | Add a scroll listener, which executes a specified function on every scroll change. Callback parameters: docScrollValue (current browser scroll value), scrollValue (current interpolated value), maxHeight (max scroll height). |
+| off             | (event: 'scroll', fn: Function) | Remove a scroll listener animation                                                                                                                                                                                              |
+| scrollTo        | (target: string                 | number                                                                                                                                                                                                                          | Element, opts: { native?: boolean }) | Scroll to an element (via selector, document top offset, or element reference) |
+| getCurrentValue | none                            | Get a current document scroll value                                                                                                                                                                                             |
+| destroy         | none                            | Destroy an instance                                                                                                                                                                                                             |
