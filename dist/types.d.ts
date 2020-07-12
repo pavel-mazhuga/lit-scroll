@@ -17,6 +17,7 @@ export declare type LitScrollInstance = {
 };
 export declare type LitScrollOptions = {
     ease: number;
+    mobile: boolean;
 };
 export declare type ScrollToOptions = {
     native: boolean;
