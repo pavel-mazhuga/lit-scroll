@@ -206,12 +206,12 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
             const element = document.querySelector(target);
 
             if (element) {
-                offsetY = window.scrollY + element.getBoundingClientRect().top;
+                offsetY = docScroll + element.getBoundingClientRect().top;
             }
         }
 
         if (target instanceof Element) {
-            offsetY = window.scrollY + target.getBoundingClientRect().top;
+            offsetY = docScroll + target.getBoundingClientRect().top;
         }
 
         if (offsetY) {
