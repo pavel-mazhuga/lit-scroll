@@ -163,7 +163,7 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
         if (typeof scrollToValue === 'number') {
             const interpolatedPrev = lerp(previous, scrollToValue, options.ease);
             previous = interpolatedPrev;
-            // window.scrollTo(0, interpolatedPrev);
+            window.scrollTo({ top: previous });
         } else {
             const interpolatedPrev = lerp(previous, docScroll, options.ease);
             previous = interpolatedPrev > 0.5 ? interpolatedPrev : docScroll;
@@ -218,10 +218,10 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
             if (scrollOptions.native && window.CSS?.supports?.('scroll-behavior', 'smooth')) {
                 window.scrollTo({ top: offsetY, behavior: 'smooth' });
             } else {
-                scrollToValue = offsetY;
-
                 if (isMobile && !options.mobile) {
                     window.scrollTo({ top: offsetY, behavior: 'smooth' });
+                } else {
+                    scrollToValue = offsetY;
                 }
             }
         }
