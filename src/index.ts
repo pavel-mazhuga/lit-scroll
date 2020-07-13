@@ -39,7 +39,7 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
     const listeners = new Set<[EventName, (event: LitScrollListenerEvent) => void]>();
     const options = { ...defaultOptions, ..._options } as LitScrollOptions;
     let docScroll = 0;
-    let scrollToValue: number | null = 0;
+    let scrollToValue: number | null = null;
     let scrollHeight = 0;
     let previous = 0;
     let ro: ResizeObserver | null;
@@ -160,10 +160,10 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
     };
 
     function render() {
-        if (scrollToValue) {
+        if (typeof scrollToValue === 'number') {
             const interpolatedPrev = lerp(previous, scrollToValue, options.ease);
             previous = interpolatedPrev;
-            window.scrollTo(0, interpolatedPrev);
+            // window.scrollTo(0, interpolatedPrev);
         } else {
             const interpolatedPrev = lerp(previous, docScroll, options.ease);
             previous = interpolatedPrev > 0.5 ? interpolatedPrev : docScroll;
@@ -214,7 +214,7 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
             offsetY = docScroll + target.getBoundingClientRect().top;
         }
 
-        if (offsetY) {
+        if (typeof offsetY === 'number') {
             if (scrollOptions.native && window.CSS?.supports?.('scroll-behavior', 'smooth')) {
                 window.scrollTo({ top: offsetY, behavior: 'smooth' });
             } else {
