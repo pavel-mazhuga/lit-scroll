@@ -1,6 +1,6 @@
 # LitScroll
 
-## A lightweight (1kb gzipped) custom scroll implementation. Written in TypeScript.
+## A lightweight (1.4kb gzipped) custom scroll implementation. Written in TypeScript.
 
 ## Installation
 
@@ -55,3 +55,5 @@ const scroll = createLitScroll();
 | scrollTo        | (target: string                 | number                                                                                                                                                                                                                          | Element, opts: { native?: boolean }) | Scroll to an element (via selector, document top offset, or element reference) |
 | getCurrentValue | none                            | Get a current document scroll value                                                                                                                                                                                             |
 | destroy         | none                            | Destroy an instance                                                                                                                                                                                                             |
+| disable         | none                            | Disable scrolling                                                                                                                                                                                                               |
+| enable          | none                            | Enable scrolling                                                                                                                                                                                                                |
