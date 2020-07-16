@@ -27,6 +27,8 @@
                 <img src="https://homepages.cae.wisc.edu/~ece533/images/baboon.png" alt="">
                 <a href="#last" data-scroll-to>Scroll to the last</a>
                 <a href="#third" data-scroll-to>Scroll to the third</a>
+                <button class="js-disable">Disable</button>
+                <button class="js-enable">Enable</button>
                 <img src="https://homepages.cae.wisc.edu/~ece533/images/baboon.png" alt="">
                 <img src="https://homepages.cae.wisc.edu/~ece533/images/baboon.png" alt="">
                 <img id="last" src="https://homepages.cae.wisc.edu/~ece533/images/baboon.png" alt="">
@@ -43,6 +45,16 @@
                         const id = btn.getAttribute('href');
                         const y = scroll.scrollTo(id, {native: false});
                     });
+                });
+            document
+                .querySelector('.js-disable')
+                .addEventListener('click', () => {
+                    scroll.disable();
+                });
+            document
+                .querySelector('.js-enable')
+                .addEventListener('click', () => {
+                    scroll.enable();
                 });
             //scroll.on('scroll', (data) => {
             //    console.log(data);
