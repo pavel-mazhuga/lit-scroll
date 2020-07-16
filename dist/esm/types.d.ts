@@ -10,6 +10,7 @@ export declare type ScrollTo = (target: number | string | Element, options?: {
 }) => number | null;
 export declare type LitScrollInstance = {
     getCurrentValue: () => number;
+    getCurrentLerpValue: () => number;
     on: ListenerFunction;
     off: ListenerFunction;
     enable: () => void;
