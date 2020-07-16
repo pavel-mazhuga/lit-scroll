@@ -201,6 +201,10 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
         return docScroll;
     }
 
+    function getCurrentLerpValue() {
+        return previous;
+    }
+
     const scrollTo: ScrollTo = (target, opts: Partial<ScrollToOptions> = {}) => {
         const scrollOptions: ScrollToOptions = { ...defaultScrollToOptions, ...opts };
         let offsetY: number | null = null;
@@ -315,6 +319,7 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
     return {
         destroy,
         getCurrentValue,
+        getCurrentLerpValue,
         on,
         off,
         scrollTo,
