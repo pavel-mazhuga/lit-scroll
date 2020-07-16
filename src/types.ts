@@ -14,6 +14,9 @@ export type LitScrollInstance = {
     getCurrentValue: () => number;
     on: ListenerFunction;
     off: ListenerFunction;
+    enable: () => void;
+    disable: () => void;
+    isEnabled: () => boolean;
     scrollTo: ScrollTo;
     destroy: () => void;
 };

@@ -26,6 +26,7 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
     const scrollableContainer = body.querySelector('[data-lit-scroll="container"]') as HTMLElement;
     const defaultScrollToOptions: ScrollToOptions = { native: false };
     let isInitialized = false;
+    let enabled = true;
 
     if (!wrapper) {
         throw new Error(`[${NAME}] Wrapper element not found.`);
@@ -44,8 +45,14 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
     let previous = 0;
     let ro: ResizeObserver | null;
 
+    function preventScrolling(event: any) {
+        event.preventDefault();
+    }
+
     function getPageYScroll() {
-        docScroll = window.pageYOffset || html.scrollTop;
+        if (enabled) {
+            docScroll = window.pageYOffset || html.scrollTop;
+        }
     }
 
     function translateScrollableElement() {
@@ -229,6 +236,22 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
         return offsetY;
     };
 
+    function disable() {
+        enabled = false;
+        body.addEventListener('wheel', preventScrolling, { passive: false });
+        body.addEventListener('touchmove', preventScrolling, { passive: false });
+    }
+
+    function enable() {
+        enabled = true;
+        body.removeEventListener('wheel', preventScrolling);
+        body.removeEventListener('touchmove', preventScrolling);
+    }
+
+    function isEnabled() {
+        return enabled;
+    }
+
     function onNativeScroll() {
         listeners.forEach(([, fn]) => {
             fn({
@@ -295,5 +318,8 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
         on,
         off,
         scrollTo,
+        enable,
+        disable,
+        isEnabled,
     };
 }
