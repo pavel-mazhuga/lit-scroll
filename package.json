@@ -22,24 +22,24 @@
         "test": "jest"
     },
     "devDependencies": {
-        "@rollup/plugin-node-resolve": "^8.0.0",
-        "@types/jest": "latest",
-        "@typescript-eslint/eslint-plugin": "latest",
-        "@typescript-eslint/parser": "latest",
-        "eslint": "latest",
+        "@rollup/plugin-node-resolve": "^8.4.0",
+        "@types/jest": "^26.0.4",
+        "@typescript-eslint/eslint-plugin": "^3.6.1",
+        "@typescript-eslint/parser": "^3.6.1",
+        "eslint": "^7.4.0",
         "eslint-config-prettier": "latest",
-        "eslint-plugin-prettier": "latest",
-        "jest": "latest",
+        "eslint-plugin-prettier": "^3.1.4",
+        "jest": "^26.1.0",
         "prettier": "latest",
         "rimraf": "^3.0.0",
-        "rollup": "latest",
+        "rollup": "^2.21.0",
         "rollup-plugin-eslint": "latest",
         "rollup-plugin-terser": "latest",
         "rollup-plugin-typescript2": "latest",
-        "ts-jest": "latest",
-        "typescript": "latest"
+        "ts-jest": "^26.1.2",
+        "typescript": "^3.9.6"
     },
     "dependencies": {
-        "eslint-plugin-jest": "latest"
+        "eslint-plugin-jest": "^23.18.0"
     }
 }
