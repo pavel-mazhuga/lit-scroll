@@ -42,7 +42,7 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
     let docScroll = 0;
     let scrollToValue: number | null = null;
     let scrollHeight = 0;
-    let previous = 0;
+    let previous = docScroll;
     let ro: ResizeObserver | null;
 
     function preventScrolling(event: any) {
@@ -217,12 +217,12 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
             const element = document.querySelector(target);
 
             if (element) {
-                offsetY = docScroll + element.getBoundingClientRect().top;
+                offsetY = previous + element.getBoundingClientRect().top;
             }
         }
 
         if (target instanceof Element) {
-            offsetY = docScroll + target.getBoundingClientRect().top;
+            offsetY = previous + target.getBoundingClientRect().top;
         }
 
         if (typeof offsetY === 'number') {
