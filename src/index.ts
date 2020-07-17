@@ -242,14 +242,14 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
 
     function disable() {
         enabled = false;
-        body.addEventListener('wheel', preventScrolling, { passive: false });
-        body.addEventListener('touchmove', preventScrolling, { passive: false });
+        scrollableContainer.addEventListener('wheel', preventScrolling, { passive: false });
+        scrollableContainer.addEventListener('touchmove', preventScrolling, { passive: false });
     }
 
     function enable() {
         enabled = true;
-        body.removeEventListener('wheel', preventScrolling);
-        body.removeEventListener('touchmove', preventScrolling);
+        scrollableContainer.removeEventListener('wheel', preventScrolling);
+        scrollableContainer.removeEventListener('touchmove', preventScrolling);
     }
 
     function isEnabled() {
