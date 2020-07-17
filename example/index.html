@@ -43,7 +43,7 @@
                     btn.addEventListener('click', event => {
                         event.preventDefault();
                         const id = btn.getAttribute('href');
-                        const y = scroll.scrollTo(id, {native: false});
+                        const y = scroll.scrollTo(id, {native: true});
                     });
                 });
             document
