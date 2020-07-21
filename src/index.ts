@@ -248,8 +248,8 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
 
     function enable() {
         enabled = true;
-        scrollableContainer.removeEventListener('wheel', preventScrolling);
-        scrollableContainer.removeEventListener('touchmove', preventScrolling);
+        scrollableContainer.removeEventListener('wheel', preventScrolling, { passive: false });
+        scrollableContainer.removeEventListener('touchmove', preventScrolling, { passive: false });
     }
 
     function isEnabled() {
