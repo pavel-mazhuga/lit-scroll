@@ -22,9 +22,16 @@ export type LitScrollInstance = {
     destroy: () => void;
 };
 
+export type LitScrollComponentParams = {
+    on: ListenerFunction;
+};
+
+export type LitScrollComponent = (params: LitScrollComponentParams) => void;
+
 export type LitScrollOptions = {
     ease: number;
     mobile: boolean;
+    components: LitScrollComponent[];
 };
 
 export type ScrollToOptions = {

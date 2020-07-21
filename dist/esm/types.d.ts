@@ -19,9 +19,14 @@ export declare type LitScrollInstance = {
     scrollTo: ScrollTo;
     destroy: () => void;
 };
+export declare type LitScrollComponentParams = {
+    on: ListenerFunction;
+};
+export declare type LitScrollComponent = (params: LitScrollComponentParams) => void;
 export declare type LitScrollOptions = {
     ease: number;
     mobile: boolean;
+    components: LitScrollComponent[];
 };
 export declare type ScrollToOptions = {
     native: boolean;

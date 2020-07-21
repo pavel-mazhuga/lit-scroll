@@ -9,12 +9,15 @@ import {
 } from './types';
 import { lerp, isMobileDevice } from './utils';
 
+export { default as Parallax } from './components/parallax';
+
 const NAME = 'lit-scroll';
 const INITIALIZED_CLASS = 'lit-scroll-initialized';
 
 const defaultOptions: LitScrollOptions = {
     ease: 0.1,
     mobile: true,
+    components: [],
 };
 
 let isMobile = isMobileDevice();
@@ -299,6 +302,8 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
         initResizeObserver();
         update();
         attemptToInit();
+
+        options.components.forEach((component) => component({ on }));
     }
 
     function destroy() {
@@ -326,5 +331,5 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
         enable,
         disable,
         isEnabled,
-    };
+    } as const;
 }

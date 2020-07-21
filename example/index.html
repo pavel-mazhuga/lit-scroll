@@ -37,6 +37,7 @@
         <script src="../dist/index.js"></script>
         <script>
             const scroll = window.createLitScroll({mobile: false});
+
             Array
                 .from(document.querySelectorAll('[data-scroll-to]'))
                 .forEach(btn => {
@@ -46,19 +47,18 @@
                         const y = scroll.scrollTo(id, {native: true});
                     });
                 });
+
             document
                 .querySelector('.js-disable')
                 .addEventListener('click', () => {
                     scroll.disable();
                 });
+
             document
                 .querySelector('.js-enable')
                 .addEventListener('click', () => {
                     scroll.enable();
                 });
-            //scroll.on('scroll', (data) => {
-            //    console.log(data);
-            //});
         </script>
     </body>
 </html>
