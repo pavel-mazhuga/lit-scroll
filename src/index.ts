@@ -53,17 +53,17 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
     }
 
     function getPageYScroll() {
-        if (enabled) {
-            docScroll = window.pageYOffset || html.scrollTop;
-        }
+        docScroll = window.pageYOffset || html.scrollTop;
     }
 
     function translateScrollableElement() {
-        scrollableContainer.style.transform = `translate3d(0,${-1 * previous}px,0)`;
+        scrollableContainer.style.transform = `translate3d(0,${-previous}px,0)`;
     }
 
     function update() {
-        previous = docScroll;
+        if (enabled) {
+            previous = docScroll;
+        }
 
         if (!isMobile || (isMobile && options.mobile)) {
             translateScrollableElement();
