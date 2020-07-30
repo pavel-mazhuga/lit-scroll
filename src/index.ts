@@ -43,6 +43,7 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
     let scrollToValue: number | null = null;
     let scrollHeight = 0;
     let previous = docScroll;
+    let speed = 0;
     let ro: ResizeObserver | null;
 
     function preventScrolling(event: any) {
@@ -173,6 +174,7 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
             window.scrollTo({ top: previous });
         } else {
             const interpolatedPrev = lerp(previous, docScroll, options.ease);
+            speed = interpolatedPrev - previous;
             previous = interpolatedPrev > 0.5 ? interpolatedPrev : docScroll;
         }
 
@@ -183,6 +185,7 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
                         docScrollValue: docScroll,
                         scrollValue: previous,
                         maxHeight: scrollHeight,
+                        speed,
                     });
                 }
             });
@@ -203,6 +206,10 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
 
     function getCurrentLerpValue() {
         return previous;
+    }
+
+    function getSpeed() {
+        return speed;
     }
 
     const scrollTo: ScrollTo = (target, opts: Partial<ScrollToOptions> = {}) => {
@@ -262,6 +269,7 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
                 docScrollValue: docScroll,
                 scrollValue: docScroll,
                 maxHeight: scrollHeight,
+                speed,
             });
         });
 
@@ -320,6 +328,7 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
         destroy,
         getCurrentValue,
         getCurrentLerpValue,
+        getSpeed,
         on,
         off,
         scrollTo,

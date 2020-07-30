@@ -4,6 +4,7 @@ export type LitScrollListenerEvent = {
     docScrollValue: number;
     scrollValue: number;
     maxHeight: number;
+    speed: number;
 };
 
 export type ListenerFunction = (eventName: EventName, fn: (event: LitScrollListenerEvent) => void) => void;
@@ -13,6 +14,7 @@ export type ScrollTo = (target: number | string | Element, options?: { native: b
 export type LitScrollInstance = {
     getCurrentValue: () => number;
     getCurrentLerpValue: () => number;
+    getSpeed: () => number;
     on: ListenerFunction;
     off: ListenerFunction;
     enable: () => void;
