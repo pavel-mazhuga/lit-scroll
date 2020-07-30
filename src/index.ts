@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import {
     LitScrollOptions,
     LitScrollInstance,
@@ -17,34 +18,99 @@ const defaultOptions: LitScrollOptions = {
     mobile: true,
 };
 
+const defaultScrollToOptions: ScrollToOptions = {
+    native: false,
+};
+
 let isMobile = isMobileDevice();
 
+/**
+ * Scroll factory function.
+ *
+ * @param  {Partial<LitScrollOptions>} options User options
+ * @returns {LitScrollInstance} instance
+ */
 export default function createLitScroll(_options: Partial<LitScrollOptions> = {}): LitScrollInstance {
     const html = document.documentElement;
     const { body } = document;
+
+    /**
+     * Wrapper element, which will become fixed after initialization.
+     */
     const wrapper = body.querySelector('[data-lit-scroll="wrapper"]') as HTMLElement;
-    const scrollableContainer = body.querySelector('[data-lit-scroll="container"]') as HTMLElement;
-    const defaultScrollToOptions: ScrollToOptions = { native: false };
-    let isInitialized = false;
-    let enabled = true;
 
     if (!wrapper) {
         throw new Error(`[${NAME}] Wrapper element not found.`);
     }
 
+    /**
+     * Scrollable element.
+     */
+    const scrollableContainer = body.querySelector('[data-lit-scroll="container"]') as HTMLElement;
+
     if (!scrollableContainer) {
         throw new Error(`[${NAME}] Container element not found.`);
     }
 
+    /**
+     * Indicates whether this instance is initialized.
+     */
+    let isInitialized = false;
+
+    /**
+     * Indicates whether scrolling is blocked.
+     */
+    let enabled = true;
+
     let rAF = 0;
+
+    /**
+     * User defined scroll event listeners.
+     */
     const listeners = new Set<[EventName, (event: LitScrollListenerEvent) => void]>();
+
     const options = { ...defaultOptions, ..._options } as LitScrollOptions;
+
+    /**
+     * Current document scroll.
+     */
     let docScroll = 0;
+
+    /**
+     * If equals to some number - 'scrollTo' scrolling is in progress.
+     */
     let scrollToValue: number | null = null;
+
     let scrollHeight = 0;
+
+    /**
+     * Current lerped document scroll.
+     */
     let previous = docScroll;
+
+    /**
+     * Difference between previous and current scroll values.
+     */
     let speed = 0;
+
     let ro: ResizeObserver | null;
+
+    const scrollableSections = Array.from(
+        scrollableContainer.querySelectorAll('[data-lit-scroll="section"]'),
+    ) as HTMLElement[];
+
+    const sectionObserver =
+        'IntersectionObserver' in window
+            ? new IntersectionObserver(
+                  (entries) => {
+                      entries.forEach((entry) => {
+                          const target = entry.target as HTMLElement;
+                          target.style.visibility = entry.isIntersecting ? '' : 'hidden';
+                      });
+                  },
+                  { rootMargin: '100px 0px' },
+              )
+            : null;
 
     function preventScrolling(event: any) {
         event.preventDefault();
@@ -159,6 +225,18 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
         }
     }
 
+    function initSections() {
+        if (sectionObserver) {
+            scrollableSections.forEach((section) => sectionObserver.observe(section));
+        }
+    }
+
+    function destroySections() {
+        if (sectionObserver) {
+            sectionObserver.disconnect();
+        }
+    }
+
     const on: ListenerFunction = (eventName, fn) => {
         listeners.add([eventName, fn]);
     };
@@ -169,16 +247,19 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
 
     function render() {
         if (typeof scrollToValue === 'number') {
+            // 'scrollTo' scrolling is in progress
             const interpolatedPrev = lerp(previous, scrollToValue, options.ease);
             previous = interpolatedPrev;
             window.scrollTo({ top: previous });
         } else {
+            // default scrolling
             const interpolatedPrev = lerp(previous, docScroll, options.ease);
             speed = interpolatedPrev - previous;
             previous = interpolatedPrev > 0.5 ? interpolatedPrev : docScroll;
         }
 
         if (Math.abs(previous - docScroll) > 0.5) {
+            // Trigger all registered listeners on scroll change
             listeners.forEach(([eventName, fn]) => {
                 if (eventName === 'scroll') {
                     fn({
@@ -190,6 +271,7 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
                 }
             });
         } else {
+            // Reset this value if scrolling stopped
             scrollToValue = null;
         }
 
@@ -200,18 +282,39 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
         rAF = requestAnimationFrame(render);
     }
 
+    /**
+     * Get current document scroll value.
+     *
+     * @returns {Number}
+     */
     function getCurrentValue() {
         return docScroll;
     }
 
+    /**
+     * Get current lerped scroll value.
+     *
+     * @returns {Number}
+     */
     function getCurrentLerpValue() {
         return previous;
     }
 
+    /**
+     * Get current speed which is basically
+     * difference between previous and current value.
+     *
+     * @returns {Number}
+     */
     function getSpeed() {
         return speed;
     }
 
+    /**
+     * @param  {String | Number | Element} target Scrolling target.
+     * @param  {Partial<ScrollToOptions>} options ScrollTo options.
+     * @returns {Number} offsetY
+     */
     const scrollTo: ScrollTo = (target, opts: Partial<ScrollToOptions> = {}) => {
         const scrollOptions: ScrollToOptions = { ...defaultScrollToOptions, ...opts };
         let offsetY: number | null = null;
@@ -247,18 +350,29 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
         return offsetY;
     };
 
+    /**
+     * Disable scrolling.
+     */
     function disable() {
         enabled = false;
         scrollableContainer.addEventListener('wheel', preventScrolling, { passive: false });
         scrollableContainer.addEventListener('touchmove', preventScrolling, { passive: false });
     }
 
+    /**
+     * Enable scrolling.
+     */
     function enable() {
         enabled = true;
         scrollableContainer.removeEventListener('wheel', preventScrolling);
         scrollableContainer.removeEventListener('touchmove', preventScrolling);
     }
 
+    /**
+     * Returns boolean value indicating whether scrolling is enabled.
+     *
+     * @returns {Boolean} boolean
+     */
     function isEnabled() {
         return enabled;
     }
@@ -286,15 +400,13 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
                 document.removeEventListener('scroll', onNativeScroll);
                 isInitialized = true;
             }
-        } else {
-            if (isInitialized) {
-                cancelAnimationFrame(rAF);
-                unsetBodyHeight();
-                removeWrapperStyles();
-                removeHtmlElementStyles();
-                removeContainerStyles();
-                isInitialized = false;
-            }
+        } else if (isInitialized) {
+            cancelAnimationFrame(rAF);
+            unsetBodyHeight();
+            removeWrapperStyles();
+            removeHtmlElementStyles();
+            removeContainerStyles();
+            isInitialized = false;
 
             document.addEventListener('scroll', onNativeScroll);
         }
@@ -305,6 +417,7 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
         setScrollHeight();
         initEvents();
         initResizeObserver();
+        initSections();
         update();
         attemptToInit();
     }
@@ -313,6 +426,7 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
         cancelAnimationFrame(rAF);
         destroyResizeObserver();
         destroyEvents();
+        destroySections();
         listeners.clear();
         unsetBodyHeight();
         removeWrapperStyles();
@@ -335,5 +449,5 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
         enable,
         disable,
         isEnabled,
-    };
+    } as const;
 }
