@@ -9,7 +9,7 @@ Install it from NPM:
 
 ## Browser Support
 
-The library uses a `ResizeObserver` (conditionally) to listen to scrollable element size change. In order to support dynamic scrollable container size change in Safari and IE, you should use `ResizeObserver` polyfill (<https://github.com/que-etc/resize-observer-polyfill>).
+The library uses a [`ResizeObserver`](https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver) (conditionally) to listen to scrollable element size change. In order to support dynamic scrollable container size change in Safari and IE, you should use [`ResizeObserver`](https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver) [polyfill](https://github.com/que-etc/resize-observer-polyfill).
 
 **IMPORTANT:** The library's default compilation target is ES6. If you need to support ES5 environments - consider transpiling it.
 
@@ -27,7 +27,7 @@ In your HTML:
 </body>
 ```
 
-Note: wrapper element must be a descendant of <body>.
+Note: wrapper element must be a descendant of `<body>`.
 
 In your JS:
 
@@ -35,6 +35,28 @@ In your JS:
 import createLitScroll from 'lit-scroll';
 
 const scroll = createLitScroll();
+```
+
+## Scroll sections
+
+If your page is quite long, you can split your scroll container into scroll sections (via [data-lit-scroll="section"] attribute) to improve scrolling performance. This technique requires [`IntersectionObserver`](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API) [support](https://caniuse.com/#search=IntersectionObserver). If none will be detected - [data-lit-scroll="section"] attribute will simply have no effect, nothing will break.
+
+Syntax:
+
+```html
+<body>
+    <div data-lit-scroll="wrapper">
+        <div data-lit-scroll="container">
+            <div data-lit-scroll="section">
+                <!-- Section content goes here -->
+            </div>
+            <div data-lit-scroll="section">
+                <!-- Section content goes here -->
+            </div>
+            <!-- ...and so on -->
+        </div>
+    </div>
+</body>
 ```
 
 ## Options
