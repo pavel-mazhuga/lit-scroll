@@ -1,0 +1,1 @@
+function n(n,t,e){return(1-e)*n+e*t}function t(){return/(Android|webOS|iPhone|iPad|iPod|BlackBerry|Windows Phone)/i.test(navigator.userAgent)}function e(n,t=window.scrollY,e=0){return n.getBoundingClientRect().top+t-e}export{e as g,t as i,n as l};

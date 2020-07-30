@@ -5,4 +5,4 @@ export declare type LitScrollParallaxData = {
     speed: number;
     media?: string;
 };
-export default function Parallax({ on }: LitScrollComponentParams): void;
+export default function Parallax({ on, getCurrentLerpValue, viewport }: LitScrollComponentParams): void;

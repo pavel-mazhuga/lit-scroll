@@ -6,10 +6,9 @@ import {
     LitScrollListenerEvent,
     ListenerFunction,
     ScrollTo,
+    Viewport,
 } from './types';
 import { lerp, isMobileDevice } from './utils';
-
-export { default as Parallax } from './components/parallax';
 
 const NAME = 'lit-scroll';
 const INITIALIZED_CLASS = 'lit-scroll-initialized';
@@ -47,6 +46,11 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
     let scrollHeight = 0;
     let previous = docScroll;
     let ro: ResizeObserver | null;
+
+    const viewport: Viewport = {
+        width: window.innerWidth,
+        height: window.innerHeight,
+    };
 
     function preventScrolling(event: any) {
         event.preventDefault();
@@ -303,7 +307,7 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
         update();
         attemptToInit();
 
-        options.components.forEach((component) => component({ on }));
+        options.components.forEach((component) => component({ on, getCurrentLerpValue, viewport }));
     }
 
     function destroy() {

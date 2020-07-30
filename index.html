@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>Test Page</title>
+        <style>
+            body {
+                margin: 0;
+            }
+
+            img {
+                width: 100%;
+                height: auto;
+                display: block;
+            }
+        </style>
+    </head>
+    <body>
+        <div data-lit-scroll="wrapper">
+            <div data-lit-scroll="container">
+                <a href="#last" data-scroll-to>Scroll to the last</a>
+                <section data-lit-scroll="section">
+                    <img src="https://homepages.cae.wisc.edu/~ece533/images/baboon.png" alt="">
+                </section>
+                <section data-lit-scroll="section">
+                    <div data-scroll-parallax data-scroll-parallax-speed="0.25">Hey!</div>
+                    <img src="https://homepages.cae.wisc.edu/~ece533/images/baboon.png" alt="">
+                    <section data-lit-scroll="section">
+                        <img id="third" src="https://homepages.cae.wisc.edu/~ece533/images/baboon.png" alt="">
+                    </section>
+                    <section data-lit-scroll="section">
+                        <img src="https://homepages.cae.wisc.edu/~ece533/images/baboon.png" alt="">
+                    </section>
+                    <section data-lit-scroll="section">
+                        <a href="#last" data-scroll-to>Scroll to the last</a>
+                        <a href="#third" data-scroll-to>Scroll to the third</a>
+                        <button class="js-disable">Disable</button>
+                        <button class="js-enable">Enable</button>
+                        <img src="https://homepages.cae.wisc.edu/~ece533/images/baboon.png" alt="">
+                    </section>
+                    <section data-lit-scroll="section">
+                        <img src="https://homepages.cae.wisc.edu/~ece533/images/baboon.png" alt="">
+                    </section>
+                    <section data-lit-scroll="section">
+                        <img id="last" src="https://homepages.cae.wisc.edu/~ece533/images/baboon.png" alt="">
+                    </section>
+                </div>
+            </div>
+            <script type="module">
+                import createLitScroll from '../dist/esm/index.js';
+                import Parallax from '../dist/esm/components/parallax.js';
+
+                const scroll = createLitScroll({mobile: false, components: [Parallax]});
+
+                Array
+                    .from(document.querySelectorAll('[data-scroll-to]'))
+                    .forEach((btn) => {
+                        btn.addEventListener('click', (event) => {
+                            event.preventDefault();
+                            const id = btn.getAttribute('href');
+                            scroll.scrollTo(id, {native: true});
+                        });
+                    });
+
+                document
+                    .querySelector('.js-disable')
+                    .addEventListener('click', () => {
+                        scroll.disable();
+                    });
+
+                document
+                    .querySelector('.js-enable')
+                    .addEventListener('click', () => {
+                        scroll.enable();
+                    });
+            </script>
+        </body>
+    </html>

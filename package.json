@@ -19,7 +19,8 @@
     "homepage": "https://github.com/pavel-mazhuga/lit-scroll#readme",
     "scripts": {
         "prepare": "rimraf ./dist && rollup --config",
-        "test": "jest"
+        "test": "jest",
+        "serve": "serve"
     },
     "devDependencies": {
         "@rollup/plugin-node-resolve": "^8.4.0",
@@ -36,6 +37,7 @@
         "rollup-plugin-eslint": "latest",
         "rollup-plugin-terser": "latest",
         "rollup-plugin-typescript2": "latest",
+        "serve": "^11.3.2",
         "ts-jest": "^26.1.2",
         "typescript": "^3.9.6"
     },

@@ -24,6 +24,8 @@ export type LitScrollInstance = {
 
 export type LitScrollComponentParams = {
     on: ListenerFunction;
+    getCurrentLerpValue: () => number;
+    viewport: Viewport;
 };
 
 export type LitScrollComponent = (params: LitScrollComponentParams) => void;
@@ -36,4 +38,9 @@ export type LitScrollOptions = {
 
 export type ScrollToOptions = {
     native: boolean;
+};
+
+export type Viewport = {
+    width: number;
+    height: number;
 };
