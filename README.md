@@ -1,6 +1,6 @@
 # LitScroll
 
-## A lightweight (1.4kb gzipped) custom scroll implementation. Written in TypeScript.
+## A lightweight (1.5kb gzipped) custom scroll implementation. Written in TypeScript.
 
 ## Installation
 
@@ -34,12 +34,16 @@ In your JS:
 ```javascript
 import createLitScroll from 'lit-scroll';
 
-const scroll = createLitScroll();
+const scroll = createLitScroll({
+    // defaults
+    ease: 0.1,
+    mobile: false,
+});
 ```
 
 ## Scroll sections
 
-If your page is quite long, you can split your scroll container into scroll sections (via [data-lit-scroll="section"] attribute) to improve scrolling performance. This technique requires [`IntersectionObserver`](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API) [support](https://caniuse.com/#search=IntersectionObserver). If none will be detected - [data-lit-scroll="section"] attribute will simply have no effect, nothing will break.
+If your page is quite long, you can split your scroll container into scroll sections (via `[data-lit-scroll="section"]` attribute) to improve scrolling performance. This technique requires [`IntersectionObserver`](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API) [support](https://caniuse.com/#search=IntersectionObserver). If none will be detected - [data-lit-scroll="section"] attribute will simply have no effect, nothing will break.
 
 Syntax:
 
