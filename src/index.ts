@@ -102,8 +102,8 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
     const sectionObserver =
         'IntersectionObserver' in window
             ? new IntersectionObserver(
-                  (entries) => {
-                      entries.forEach((entry) => {
+                  entries => {
+                      entries.forEach(entry => {
                           const target = entry.target as HTMLElement;
                           target.style.visibility = entry.isIntersecting ? '' : 'hidden';
                       });
@@ -193,7 +193,7 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
 
     function initEvents() {
         window.addEventListener('resize', onResize);
-        window.addEventListener('scroll', getPageYScroll);
+        window.addEventListener('scroll', getPageYScroll, { passive: false });
     }
 
     function destroyEvents() {
@@ -211,7 +211,7 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
 
     function initResizeObserver() {
         if (window.ResizeObserver) {
-            ro = new ResizeObserver((entries) => {
+            ro = new ResizeObserver(entries => {
                 entries.forEach(onResizeObserverTrigger);
             });
 
@@ -227,7 +227,7 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
 
     function initSections() {
         if (sectionObserver) {
-            scrollableSections.forEach((section) => sectionObserver.observe(section));
+            scrollableSections.forEach(section => sectionObserver.observe(section));
         }
     }
 
@@ -408,7 +408,7 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
             removeContainerStyles();
             isInitialized = false;
 
-            document.addEventListener('scroll', onNativeScroll);
+            document.addEventListener('scroll', onNativeScroll, { passive: false });
         }
     }
 
