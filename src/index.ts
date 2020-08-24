@@ -52,6 +52,10 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
         throw new Error(`[${NAME}] Container element not found.`);
     }
 
+    const focusableElements = Array.from(
+        scrollableContainer.querySelectorAll('a, button, select, input, [tabindex="0"]'),
+    );
+
     /**
      * Indicates whether this instance is initialized.
      */
@@ -194,11 +198,17 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
     function initEvents() {
         window.addEventListener('resize', onResize);
         window.addEventListener('scroll', getPageYScroll);
+        focusableElements.forEach((el) => {
+            el.addEventListener('focus', onFocus);
+        });
     }
 
     function destroyEvents() {
         window.removeEventListener('resize', onResize);
         window.removeEventListener('scroll', getPageYScroll);
+        focusableElements.forEach((el) => {
+            el.removeEventListener('focus', onFocus);
+        });
     }
 
     function onResizeObserverTrigger() {
@@ -235,6 +245,11 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
         if (sectionObserver) {
             sectionObserver.disconnect();
         }
+    }
+
+    function onFocus(this: Element) {
+        // this.scrollIntoView();
+        scrollTo(this);
     }
 
     const on: ListenerFunction = (eventName, fn) => {
