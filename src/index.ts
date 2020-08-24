@@ -412,7 +412,7 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
                 setBodyHeight();
                 styleHtmlElement();
                 styleWrapper();
-                document.removeEventListener('scroll', onNativeScroll);
+                document.addEventListener('scroll', onNativeScroll, { passive: false });
                 isInitialized = true;
             }
         } else if (isInitialized) {
@@ -423,7 +423,7 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
             removeContainerStyles();
             isInitialized = false;
 
-            document.addEventListener('scroll', onNativeScroll);
+            document.removeEventListener('scroll', onNativeScroll);
         }
     }
 
