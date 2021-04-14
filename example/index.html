@@ -121,7 +121,7 @@
         </div>
         <script src="../dist/index.js"></script>
         <script>
-            const scroll = window.createLitScroll({mobile: false});
+            const scroll = window.createLitScroll({ease: 0.05,mobile: false});
             Array
                 .from(document.querySelectorAll('[data-scroll-to]'))
                 .forEach(btn => {
