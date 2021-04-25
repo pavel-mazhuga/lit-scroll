@@ -112,7 +112,7 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
                           const target = entry.target as HTMLElement;
 
                           if (supportsContentVisibility) {
-                              (target.style as any).contentVisibility = entry.isIntersecting ? '' : 'hidden';
+                              (target.style as any).contentVisibility = entry.isIntersecting ? '' : 'auto';
                           } else {
                               target.style.visibility = entry.isIntersecting ? '' : 'hidden';
                           }
