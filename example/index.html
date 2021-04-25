@@ -33,7 +33,7 @@
                 <section data-lit-scroll="section">
                     <img src="https://homepages.cae.wisc.edu/~ece533/images/baboon.png" alt="">
                 </section>
-                <section data-lit-scroll="section">
+                <section id="third" data-lit-scroll="section">
                     <a href="#last" data-scroll-to>Scroll to the last</a>
                     <img src="https://homepages.cae.wisc.edu/~ece533/images/baboon.png" alt="">
                     <img src="https://homepages.cae.wisc.edu/~ece533/images/baboon.png" alt="">
@@ -121,7 +121,7 @@
         </div>
         <script src="../dist/index.js"></script>
         <script>
-            const scroll = window.createLitScroll({ease: 0.05,mobile: false});
+            const scroll = window.createLitScroll({ease: 0.05, mobile: false});
             Array
                 .from(document.querySelectorAll('[data-scroll-to]'))
                 .forEach(btn => {
