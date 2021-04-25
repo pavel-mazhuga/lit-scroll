@@ -23,6 +23,7 @@ const defaultScrollToOptions: ScrollToOptions = {
 };
 
 let isMobile = isMobileDevice();
+const supportsContentVisibility = CSS?.supports?.('content-visibility', 'auto') || false;
 
 /**
  * Scroll factory function.
@@ -109,7 +110,12 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
                   (entries) => {
                       entries.forEach((entry) => {
                           const target = entry.target as HTMLElement;
-                          target.style.visibility = entry.isIntersecting ? '' : 'hidden';
+
+                          if (supportsContentVisibility) {
+                              (target.style as any).contentVisibility = entry.isIntersecting ? '' : 'auto';
+                          } else {
+                              target.style.visibility = entry.isIntersecting ? '' : 'hidden';
+                          }
                       });
                   },
                   { rootMargin: '100px 0px' },
@@ -125,7 +131,7 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
     }
 
     function translateScrollableElement() {
-        scrollableContainer.style.transform = `translate3d(0,${-previous}px,0)`;
+        scrollableContainer.style.transform = `matrix3d(1,0,0.00,0,0.00,1,0.00,0,0,0,1,0,0,${-previous},0,1)`;
     }
 
     function update() {
@@ -212,6 +218,13 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
     }
 
     function onResizeObserverTrigger() {
+        scrollableSections.forEach((section) => {
+            (section.style as any).contentVisibility = '';
+            (section.style as any).containIntrinsicSize = '';
+            const rect = section.getBoundingClientRect();
+            (section.style as any).containIntrinsicSize = `1px ${rect.height}px`;
+        });
+
         setScrollHeight();
 
         if (!isMobile || (isMobile && options.mobile)) {
@@ -237,7 +250,9 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
 
     function initSections() {
         if (sectionObserver) {
-            scrollableSections.forEach((section) => sectionObserver.observe(section));
+            scrollableSections.forEach((section) => {
+                sectionObserver.observe(section);
+            });
         }
     }
 
@@ -248,7 +263,6 @@ export default function createLitScroll(_options: Partial<LitScrollOptions> = {}
     }
 
     function onFocus(this: Element) {
-        // this.scrollIntoView();
         scrollTo(this);
     }
 
